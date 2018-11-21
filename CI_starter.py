@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """
 This project is a simulator of Continuous Integration process.
 Script trigger (faked) tests suite, when detects new changes on github repository.
@@ -22,10 +23,9 @@ Requirements:
 
 from subprocess import Popen, PIPE, STDOUT, DEVNULL
 from github import *
-from report_manager import generate_report
-from tests_suite_manager import *
 import argparse
-from threading import Thread
+from report import generate_report
+from tests_suite import *
 
 USERNAME = "Project-temporary-user"
 REPOSITORY_NAME = 'watching-repository'

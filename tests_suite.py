@@ -17,7 +17,6 @@ Struktura katalogow:
 """
 
 import os
-import os.path
 import time
 from random import randint, choice
 
@@ -25,6 +24,8 @@ from github import get_get_dates_of_all_commits_from_github, is_newer_commit
 
 SUITE_TESTS_DIR_PREFIX = 'tests_suite'
 ROOT_TESTS_DIR = 'all_tests'
+HISTORY_FILE = "commits_history.txt"
+CURR_DIR = os.path.dirname(os.path.realpath(__file__))
 
 
 class TestResult:
@@ -65,7 +66,7 @@ def create_suite_tests_dir(dirname, date):
 
 
 def create_single_test_dir(dirname, id, name):
-    name = 'test_' + id + '_runned_at_' + name
+    name = 'test_' + id + '_started_at_' + name
     return create_dir(dirname, name)
 
 
@@ -95,9 +96,8 @@ def launch_single_test(id):
 
 def launch_tests(tests_to_launch):
     current_date = get_current_date()
-    curr_dir = os.path.dirname(os.getcwd())
-    curr_dir = os.path.join(curr_dir, "Continous-Integration")
-    all_tests = os.path.join(curr_dir, ROOT_TESTS_DIR)
+
+    all_tests = os.path.join(CURR_DIR, ROOT_TESTS_DIR)
     suite_test_dir = create_suite_tests_dir(all_tests, current_date)
     print("INFO: Log files available in: ", suite_test_dir)
     file_name = create_single_test_log_file(suite_test_dir, current_date)
@@ -111,6 +111,7 @@ def launch_tests(tests_to_launch):
 
 def monitor_changes(github_token, github_session, time_to_wait_for_changes,
                     username, repository_name, tests_to_launch, time_delay):
+
     timer = 0
     while time_to_wait_for_changes > timer:
         print("INFO: Checking if there was introduced new changes on github...")
@@ -118,7 +119,7 @@ def monitor_changes(github_token, github_session, time_to_wait_for_changes,
                                                                 username,
                                                                 repository_name,
                                                                 github_token)
-        if is_newer_commit(commits_date):
+        if is_newer_commit(HISTORY_FILE, commits_date):
             print("INFO: Detected new changes. Starting tests.")
             launch_tests(tests_to_launch)
             print("INFO: Finished tests")

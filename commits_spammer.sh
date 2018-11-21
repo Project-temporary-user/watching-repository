@@ -6,29 +6,28 @@ if [ $# -eq 0 ]; then
  exit 1
 fi
 
+current_dir=$(dirname "$0")
 token=$1
 username=$2
 controlled_repository=$3
 commit_number=$4
+controlled_repository_dir="$current_dir/$controlled_repository"
 
 echo "$token"
 echo "$username"
 echo "$controlled_repository"
+echo "$controlled_repository_dir"
 
-#token="72faa47f2280b202f8b2b2b7169369b2857138a9"
-#username="Project-temporary-user"
-#controlled_repository="watching-repository"
-current_dir=`pwd`
 
-if ! [ -d ${controlled_repository} ]; then
-mkdir ${controlled_repository}
-git clone "https://github.com/$username/$controlled_repository.git" ${controlled_repository}
-cd ${controlled_repository}
+if ! [ -d ${controlled_repository_dir} ]; then
+mkdir ${controlled_repository_dir}
+cd "$controlled_repository_dir"
+git clone "https://github.com/$username/$controlled_repository.git" ${controlled_repository_dir}
 git remote set-url origin "https://$username:${token}@github.com/$username/$controlled_repository.git"
 fi
 
 
-cd "$current_dir/$controlled_repository"
+cd ${controlled_repository_dir}
 for i in `seq $commit_number`; do
     echo `date '+%Y%m%d%H%M%S'` > README.md
     git add README.md

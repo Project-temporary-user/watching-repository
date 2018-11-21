@@ -8,8 +8,7 @@ by moc zdalnie logowac sie do repozytorium.
 import requests
 import json
 import re
-
-HISTORY_FILE = "commits_history.txt"
+import os
 
 
 class GitConnectionError(Exception): pass
@@ -43,16 +42,17 @@ def get_get_dates_of_all_commits_from_github(session, username, repository, toke
     return all_commit_dates
 
 
-def is_newer_commit(all_commit_dates) -> bool:
+def is_newer_commit(history_file, all_commit_dates) -> bool:
+    history_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), history_file)
 
-    with open(HISTORY_FILE, 'r') as f:
+    with open(history_file, 'r') as f:
         last_commit_date = f.readline()
         print("INFO: Last remembered commit's date: ", last_commit_date)
         all_commit_dates = list(filter(lambda d: d > last_commit_date, all_commit_dates))
         try:
             last_commit_date = all_commit_dates[0]
             print("INFO: After {0} was new commit: {1}".format(last_commit_date, last_commit_date))
-            with open(HISTORY_FILE, 'w') as f:
+            with open(history_file, 'w') as f:
                 f.write(last_commit_date + '\n')
             return True
         except IndexError:

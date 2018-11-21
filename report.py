@@ -1,33 +1,31 @@
-"""
-Zbiera dane ze wszystkich <POJEDYŃCZY RAPORT> w katalogach: <POJEDYŃCZA SUITA TESTOWA>
 
+"""
+Zbiera dane ze wszystkich <POJEDYNCZY RAPORT> w katalogach: <POJEDYNCZA SUITA TESTOWA>
 Struktura katalogow:
 <all_tests>
------<POJEDYŃCZA SUITA TESTOWA>
-----------<POJEDYŃCZY RAPORT>
+-----<POJEDYNCZA SUITA TESTOWA>
+----------<POJEDYNCZY RAPORT>
 ----------<KATALOG Z LOGAMI>
 ...
------<POJEDYŃCZA SUITA TESTOWA>
-----------<POJEDYŃCZY RAPORT>
+-----<POJEDYNCZA SUITA TESTOWA>
+----------<POJEDYNCZY RAPORT>
 ----------<KATALOG Z LOGAMI>
 
-
-Dla każdego testu o danym id tworzy listę, zawierającej historię <REZULTAT> i <CZAS DZIAŁANIA>.
+Dla kazdego testu o danym id tworzy liste, zawierajacej historie <REZULTAT> i <CZAS DZIALANIA>.
 Dane te umieszcza w obiektach klasy ProcessedReport.
-Z nich generuje raport w formacie html, używając do tego modułu flask.
+Z nich generuje raport w formacie html, uzywajac do tego modulu flask.
 
 """
 
 import os
 from flask import Flask, render_template
 from socket import *
-from tests_suite_manager import TestResult
+from tests_suite import TestResult
 
 
 HOST = '127.0.0.1'
 PORT = 5000
 
-ROOT_TESTS_DIR = os.path.join("Continous-Integration", 'all_tests')
 SUITE_TESTS_DIR_PREFIX = 'tests_suite'
 REPORT_HEADER = 'TEST'
 
@@ -61,16 +59,10 @@ class ProcessedReport:
         return self.__str__()
 
 
-def get_current_dir():
-
-    curr_dir = os.path.join(os.path.dirname(os.getcwd()), ROOT_TESTS_DIR)
-    return curr_dir
-
-
-def collect_report_files(curr_dir: str) -> list:
-
+def collect_report_files() -> list:
+    current_dir = os.path.dirname(os.path.realpath(__file__))
     report_files = []
-    for root, dirs, files in os.walk(curr_dir):
+    for root, dirs, files in os.walk(current_dir):
         for f in files:
             if '.txt' in f:
                 report_files.append(os.path.join(root, f))
@@ -125,8 +117,7 @@ def generate_report():
 
     @app.route('/')
     def index():
-        curr_dir = get_current_dir()
-        report_files = collect_report_files(curr_dir)
+        report_files = collect_report_files()
         report_details = sorted(get_report_details(report_files), key=lambda obj: int(obj.id))
         processed_rep = process_reports_data(report_details)
         return render_template('report.html', tests=processed_rep, passed_tests_num=passed_tests_num(processed_rep))
